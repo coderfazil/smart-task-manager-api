@@ -10,24 +10,28 @@ const authRouter= require("./routes/authRoutes");
 const taskRouter = require("./routes/taskRoutes");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const morgan = require("morgan");
+const mongoSanitize = require("express-mongo-sanitize")
 
 
 app.set("trust proxy", 1);
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 app.use(helmet());
 
-function mongoSanitize() {
-    return undefined;
-}
-
-app.use(mongoSanitize());
+app.use(
+    mongoSanitize({
+        replaceWith: "_"
+    })
+);
+app.use(morgan("dev"));
 
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100
 }));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+
 app.use(cookieParser());
 
 app.use(cors({
