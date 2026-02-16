@@ -34,14 +34,35 @@ app.use(rateLimit({
 
 app.use(cookieParser());
 
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:4173",
+    process.env.CLIENT_URL
+];
+
 app.use(cors({
-    origin:process.env.CLIENT_URL,
-    credentials: true,
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("CORS not allowed"));
+        }
+    },
+    credentials: true
 }));
+
+
+// app.use(cors({
+//     origin:process.env.CLIENT_URL,
+//     credentials: true,
+// }));
 app.use("/auth",authRouter);
 app.use(taskRouter);
 app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "ok" });
+});
+app.get("/", (req,res)=>{
+    res.send("Smart Task Manager API is running");
 });
 
 
